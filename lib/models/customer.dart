@@ -10,4 +10,9 @@ class Customer {
     required this.phone,
     required this.imgPicture,
   });
+
+  @override
+  String toString() {
+    return 'Customer{id: $id, name: $name, phone: $phone, imgPicture: $imgPicture}\n';
+  }
 }

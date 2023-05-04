@@ -1,24 +1,35 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:myapp/models/customer.dart';
 import 'package:myapp/models/customer_group.dart';
 import 'package:myapp/models/fake.dart';
-import 'package:myapp/widget/add_customer.dart';
-import 'package:myapp/widget/tags.dart';
+import 'package:myapp/widget/show_contact.dart';
+import 'package:myapp/widget/tag_color.dart';
 
+// ignore: must_be_immutable
 class AddNewGroup extends StatefulWidget {
-  DataFake dataFake;
+  DataFake? dataFake;
+  final List<Customer>? customersx;
 
-  AddNewGroup({required this.dataFake, super.key});
+  AddNewGroup({this.dataFake, super.key, this.customersx});
 
   @override
   State<AddNewGroup> createState() => _AddNewGroupState();
 }
 
 class _AddNewGroupState extends State<AddNewGroup> {
-  final List<String> _tags = [];
+  late final List<Customer>? customers;
+  @override
+  void initState() {
+    super.initState();
+    customers = widget.customersx;
+  }
+
+  bool isChecked = false;
+
   CustomerGroup? newGroup;
 
   final _groupNameController = TextEditingController();
@@ -156,16 +167,79 @@ class _AddNewGroupState extends State<AddNewGroup> {
                     ),
                     maxLines: 5,
                   ),
-                  TagsWidget(
-                      xtags: _tags,
-                      onSelected: (value) {
-                        setState(() {
-                          if (!_tags.contains(value)) _tags.add(value);
-                        });
-                      }),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: Stack(
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/header_tags.svg',
+                                height: 35,
+                                width: 35,
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.only(top: 9, left: 7.0),
+                                child: Text(
+                                  'Màu',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: Custom_Checkbox(
+                            isChecked: isChecked,
+                            backgroundColor: const Color(0xffffc107),
+                            onChange: (value, colorx) {
+                              isChecked = !value;
+                              // ignore: avoid_print
+                              print(colorx.toString());
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: Custom_Checkbox(
+                            isChecked: isChecked,
+                            backgroundColor: const Color(0xfff44336),
+                            onChange: (value, colorx) {
+                              isChecked = !value;
+                              // ignore: avoid_print
+                              print(value);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   _padding1('Thêm khách hàng'),
-                  const AddCustomers(),
-                  const Padding(padding: EdgeInsets.all(200)),
+                  InkWell(
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: SvgPicture.asset(
+                            'assets/icons/icon_plus.svg',
+                            height: 19,
+                            width: 19,
+                          ),
+                        ),
+                        const Text(
+                          'Thêm khách hàng',
+                          style: TextStyle(color: Color(0xff5D697D)),
+                        )
+                      ],
+                    ),
+                    onTap: () {
+                      _showCustomers(context);
+                    },
+                  ),
+                  // const Padding(padding: EdgeInsets.all(200)),
                 ],
               ),
             ),
@@ -173,6 +247,19 @@ class _AddNewGroupState extends State<AddNewGroup> {
         ],
       ),
     );
+  }
+
+  Future<void> _showCustomers(BuildContext context) async {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return const ShowContact();
+      },
+    ).then((value) {
+      customers?.addAll(value);
+    });
   }
 
   Padding _padding1(String text) {
@@ -183,6 +270,7 @@ class _AddNewGroupState extends State<AddNewGroup> {
         style: const TextStyle(
           color: Color(0xff202E7A),
           fontSize: 16,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -228,33 +316,6 @@ class _AddNewGroupState extends State<AddNewGroup> {
           child: TextButton(
             onPressed: () {
               setState(() {
-                List<Customer> customers = [
-                  Customer(
-                    id: '1',
-                    name: 'John Doe',
-                    phone: '+1-555-1234',
-                    imgPicture: 'https://example.com/john-doe.jpg',
-                  ),
-                  Customer(
-                    id: '2',
-                    name: 'Jane Smith',
-                    phone: '+1-555-5678',
-                    imgPicture: 'https://example.com/jane-smith.jpg',
-                  ),
-                  Customer(
-                    id: '3',
-                    name: 'Jane Smith',
-                    phone: '+1-555-5678',
-                    imgPicture: 'https://example.com/jane-smith.jpg',
-                  ),
-                  Customer(
-                    id: '4',
-                    name: 'Jane Smith',
-                    phone: '+1-555-5678',
-                    imgPicture: 'https://example.com/jane-smith.jpg',
-                  ),
-                  // add more customers here
-                ];
                 CustomerGroup newG = CustomerGroup(
                   id: String.fromCharCodes(Iterable.generate(
                       5,
@@ -264,16 +325,12 @@ class _AddNewGroupState extends State<AddNewGroup> {
                   name: _groupNameController.text,
                   description: _descriptionController.text,
                   imgPicture: _image!.path,
-                  tags: _tags,
-                  customers: [
-                    customers[0],
-                    customers[1],
-                    customers[2],
-                    customers[3]
-                  ],
+                  tags: Color(int.parse('#FF4F18'.substring(1, 7), radix: 16) +
+                      0xFF000000),
+                  customers: customers ?? [],
                 );
-                print(newG);
-                widget.dataFake.grps.add(newG);
+                // print(newG);
+                widget.dataFake?.grps.add(newG);
               });
               Navigator.pop(context);
             },
@@ -296,40 +353,6 @@ class _AddNewGroupState extends State<AddNewGroup> {
               'Thêm nhóm mới',
               style: TextStyle(fontSize: 20),
             )),
-      ),
-    );
-  }
-}
-
-class SearchWidget extends StatefulWidget {
-  const SearchWidget({super.key});
-
-  @override
-  State<SearchWidget> createState() => SearchWidgetState();
-}
-
-class SearchWidgetState extends State<SearchWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      style: const TextStyle(
-        color: Color.fromARGB(255, 0, 0, 0),
-        fontWeight: FontWeight.w500,
-        fontSize: 16,
-      ),
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: const Color(0xffE7EDF9),
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none),
-        prefixIcon: const Icon(Icons.search),
-        hintStyle: const TextStyle(
-          color: Color(0xff9D9EA0),
-          fontWeight: FontWeight.w500,
-          fontSize: 14,
-        ),
-        hintText: 'Tìm kiếm khách hàng',
       ),
     );
   }

@@ -5,13 +5,13 @@ class DataFake {
   static List<Customer> customers = [
     Customer(
       id: '1',
-      name: 'John Doe',
+      name: 'Aohn Doe',
       phone: '555-1234',
       imgPicture: 'https://example.com/john.jpg',
     ),
     Customer(
       id: '2',
-      name: 'Jane Smith',
+      name: 'Aane Smith',
       phone: '555-5678',
       imgPicture: 'https://example.com/jane.jpg',
     ),
@@ -59,33 +59,32 @@ class DataFake {
     ),
     Customer(
       id: '10',
-      name: 'Laura Thompson',
+      name: 'Aaura Thompson 10',
       phone: '555-8901',
       imgPicture: 'https://example.com/laura.jpg',
     ),
   ];
+
+  Set<String> firstLetters = {};
+  List<String> names = customers.map((customer) => customer.name).toList();
 
   List<Customer> getdataCus() {
     return customers;
   }
 
   List<CustomerGroup> grps = [
-    CustomerGroup(
-      id: '1',
-      name: 'Friends',
-      description: 'My close friends',
-      imgPicture: '',
-      tags: ['friends', 'personal'],
-      customers: [customers[0], customers[1]],
-    ),
-    CustomerGroup(
-      id: '2',
-      name: 'Work Colleagues',
-      description: 'People I work with',
-      imgPicture: 'assets/images/model.jpg',
-      tags: ['work', 'professional'],
-      customers: [customers[0], customers[1], customers[2], customers[3]],
-    ),
     // add more customer groups here
   ];
+  Map<String, dynamic> findMatchingCustomers() {
+    Map<String, List<Customer>> map = {};
+    for (var customer in customers) {
+      String firstChar = customer.name.substring(0, 1).toUpperCase();
+      if (map.containsKey(firstChar)) {
+        map[firstChar]?.add(customer);
+      } else {
+        map[firstChar] = [customer];
+      }
+    }
+    return map;
+  }
 }

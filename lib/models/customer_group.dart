@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'customer.dart';
 
 class CustomerGroup {
@@ -5,7 +7,7 @@ class CustomerGroup {
   String name;
   String description;
   String imgPicture;
-  List<String> tags;
+  Color tags;
   List<Customer> customers;
 
   CustomerGroup({

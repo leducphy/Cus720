@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:myapp/screen/add_new_group.dart';
+import 'package:myapp/screen/group_detail.dart';
 
 import 'models/fake.dart';
 import 'models/customer_group.dart';
@@ -39,7 +41,18 @@ class _MyAppState extends State<MyApp> {
               delegate: SliverChildListDelegate(
                 <Widget>[
                   ...dataFake.grps.map(
-                    (e) => _groupItem(e),
+                    (e) => InkWell(
+                      child: _groupItem(e),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GroupDetail(
+                                groups: e,
+                              ),
+                            ));
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -52,7 +65,10 @@ class _MyAppState extends State<MyApp> {
           await Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AddNewGroup(dataFake: dataFake),
+                builder: (context) => AddNewGroup(
+                  dataFake: dataFake,
+                  customersx: const [],
+                ),
               ));
 
           setState(() {});
@@ -142,10 +158,7 @@ class _MyAppState extends State<MyApp> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _groupName(group.name),
-                    // ListView(
-                    //   children: [Text('123'), Text('123')],
-                    // ),
-                    _tagName(group.tags),
+                    _tagColor(group.tags),
                     _totalMember(group.customers.length),
                   ],
                 ),
@@ -157,6 +170,14 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
+  SvgPicture _tagColor(Color tag) {
+    return SvgPicture.asset(
+      'assets/icons/tags.svg',
+      // ignore: deprecated_member_use
+      color: tag,
+    );
+  }
+
   Text _totalMember(int total) {
     return Text(
       '$total thành viên',
@@ -165,28 +186,6 @@ class _MyAppState extends State<MyApp> {
         fontSize: 13,
         fontWeight: FontWeight.w500,
       ),
-    );
-  }
-
-  Row _tagName(List<String> tags) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Wrap(
-          spacing: 8,
-          children: [
-            ...tags.map(
-              (e) => Chip(
-                label: Text(
-                  e,
-                  style:
-                      const TextStyle(color: Color(0xff4051B4), fontSize: 12),
-                ),
-              ),
-            ),
-          ],
-        )
-      ],
     );
   }
 
